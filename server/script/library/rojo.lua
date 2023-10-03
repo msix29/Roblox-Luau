@@ -8,6 +8,9 @@ local util        = require 'utility'
 local platform    = require 'bee.platform'
 local sp          = require 'bee.subprocess'
 
+-- local command = "python my_python_script.py" --todo: fix when possible
+-- local handle = io.popen(command, "r")
+
 local rojo = {}
 
 rojo.LibraryCache = {}
@@ -439,6 +442,17 @@ function rojo:parseProject(projectPath, forceDisable)
 end
 
 function rojo:loadRojoProject()
+    self.gameSourceMap = {}
+    local file = io.open("sourcemap.json", "r")
+
+    if file then
+        log.info(jsonContent)
+        local jsonContent = file:read("*a")
+        self.gameSourceMap = json.decode(jsonContent)
+
+        file:close()
+    end
+
     self.LibraryCache = {}
     self.Scripts = {}
     self.SourceMap = {}
@@ -483,7 +497,8 @@ function rojo:loadRojoProject()
             end
         end
     end
-    self.SourceMap = self:getSourceMap({}, mainTree, "")
+    self.SourceMap = self:getSourceMap(self.gameSourceMap, mainTree, "")
+    log.info(self.SourceMap)
     return mainTree
 end
 

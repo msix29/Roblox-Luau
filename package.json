@@ -3,7 +3,7 @@
 		"onLanguage:lua",
 		"workspaceContains:/*.project.json"
 	],
-	"author": "danielaye (Codesense) / Daniel Wallace - Wonder Works Studio",
+	"author": "Msix29",
 	"capabilities": {
 		"untrustedWorkspaces": {
 			"description": "",
@@ -1196,7 +1196,9 @@
 					"type": "boolean"
 				},
 				"robloxLsp.suggestedImports.importIgnore": {
-					"default": ["**/_Index/**"],
+					"default": [
+						"**/_Index/**"
+					],
 					"items": {
 						"type": "string"
 					},
@@ -1280,7 +1282,7 @@
 					"type": "boolean"
 				}
 			},
-			"title": "Roblox LSP",
+			"title": "Roblox Language Server",
 			"type": "object"
 		},
 		"languages": [
@@ -1347,8 +1349,8 @@
 			}
 		]
 	},
-	"description": "Knit + Roblox Luau Language Server.",
-	"displayName": "Knit + Roblox LSP",
+	"description": "Luau Language Server.",
+	"displayName": "Roblox Luau",
 	"engines": {
 		"vscode": "^1.60.0"
 	},
@@ -1361,17 +1363,20 @@
 	],
 	"license": "MIT",
 	"main": "./client/out/extension",
-	"name": "roblox-lsp-plus-knit",
-	"publisher": "danielAyeCodesense",
+	"name": "roblox-lsp-with-knit",
+	"publisher": "msix29",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/codesenseAye/roblox-lsp-plus-knit"
 	},
-	"version": "0.0.6",
-	"__metadata": {
-		"id": "169d2b9c-69d2-482a-aee2-ea6c33ed4e89",
-		"publisherId": "e1e7384e-2406-4940-a937-5fad58f8815e",
-		"publisherDisplayName": "Nightrains",
-		"installedTimestamp": 1635133705385
+	"version": "0.0.1",
+	"dependencies": {
+		"body-parser": "^1.20.2",
+		"ejs": "^3.1.9",
+		"express": "^4.18.2"
+	},
+	"devDependencies": {
+		"@types/express": "^4.17.17",
+		"@types/node": "^20.6.3"
 	}
 }

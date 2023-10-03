@@ -60,7 +60,36 @@ function mt:add(language, text)
 end
 
 function mt:string()
-    return table.concat(self, '\n')
+	local comments = {}
+	local params = {}
+ 	local returns = {}
+
+	for i, v in ipairs(splitString(table.concat(self, "\n"), "\n")) do
+    	if string.find(v, "@param") then
+			params[#params + 1] = string.gsub(v, "@param", "*")
+		elseif string.find(v, "@return") then
+			returns[#returns + 1] = string.gsub(v, "@return", "*")
+		else
+			table.insert(comments, v)
+		end
+	end
+
+	local str = table.concat(comments, "\n")
+
+	if #params > 0 then
+		str = str.."\n# Paramaters\n"
+		str = str..table.concat(params, "\n")
+	end
+	if #returns > 0 then
+		str = str.."\n# Return\n"
+		str = str..table.concat(returns, "\n")
+	end
+
+	str = string.gsub(str, "--!%s?", "")
+	str = string.gsub(str, "--%?%s?", "")
+	--str = string.gsub(str, "--[tT][oO][dD][oO][:]?%s?", "")
+
+	return str
 end
 
 function mt:splitLine()

@@ -534,7 +534,7 @@ end
 --     local clock  = os.clock()
 --     local offset = files.offset(uri, params.position)
 --     local result = {}
-    
+
 --     for _, file in ipairs(files.getAllUris()) do
 --         if file == uri or files.isOpen(file)--[[file:find("Server/Services") or file:find("Client/Controllers")]] then
 --             log.info(file)
@@ -823,7 +823,7 @@ proto.on('textDocument/documentSymbol', function (params)
     workspace.awaitReady()
     local _ <close> = progress.create(lang.script.WINDOW_PROCESSING_SYMBOL, 0.5)
     local core = require 'core.document-symbol'
-        
+
     local function convert(symbol, fileUri)
         await.delay()
         symbol.range = files.range(
@@ -938,7 +938,7 @@ proto.on('workspace/executeCommand', function (params)
         local core = require 'core.command.removeSpace'
         return core(params.arguments[1])
     elseif command == 'lua.solve' then
-        local core = require 'core.command.solve'
+        local core = require 'core.co.solve'
         return core(params.arguments[1])
     elseif command == 'lua.jsonToLua' then
         local core = require 'core.command.jsonToLua'

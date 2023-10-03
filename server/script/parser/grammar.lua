@@ -149,6 +149,7 @@ EChar       <-  'a' -> ea
             /   '\'
             /   '"'
             /   "'"
+            /   '`'
             /   %nl
             /   ('z' (%nl / %s)*)       -> ''
             /   ({} 'x' {X16 X16})      -> Char16
@@ -444,7 +445,7 @@ Typeof      <-  Sp ({} 'typeof' Sp {} PL Exp DirtyPR {} Optional?)
 
 DefaultType <-  Sp ({} AssignOrEQ Type {})
             ->  DefaultType
-DefaultTypePack 
+DefaultTypePack
             <-  Sp ({} AssignOrEQ (VariadicType / TypeList) {})
             ->  DefaultType
 GenericsDef <-  Sp ({} AL Sp {| (GenericPackType DefaultTypePack? / Name DefaultType? / COMMA)+ |} Sp DirtyAR {})
@@ -455,7 +456,7 @@ Generics    <-  Sp ({} AL Sp {| (VariadicType / Type / TypeList / COMMA)* |} Sp 
             /   %nil
 TypeList    <-  Sp ({} PL {| (VariadicType / Type / COMMA)* |} DirtyPR {})
             ->  TypeList
-NamedType   <-  Sp (Name COLON Type) 
+NamedType   <-  Sp (Name COLON Type)
             ->  NamedType
 ArgTypeList <-  Sp ({} PL {| (NamedType / VariadicType / Type / COMMA)* |} DirtyPR {})
             ->  TypeList
@@ -465,7 +466,7 @@ NameType    <-  Sp ({} NameBody Generics {} Optional?)
             ->  NameType
 FuncType    <-  Sp ({} GenericsDef ArgTypeList ARROW (VariadicType / Type !DOTS / TypeList) Optional? {})
             ->  FuncType
-VariadicType    
+VariadicType
             <-  Sp ({} DOTS Type {})
             ->  VariadicType
             /   GenericPackType
@@ -476,9 +477,9 @@ SingletonType
             <-  ((String / Boolean) Optional?)
             ->  SingletonType
 
-FieldType   <-  Sp ({} Name COLON Type {}) 
+FieldType   <-  Sp ({} Name COLON Type {})
             ->  FieldType
-            /   Sp ({} BL Type DirtyBR COLON Type {}) 
+            /   Sp ({} BL Type DirtyBR COLON Type {})
             ->  IndexType
             /   Type
 FieldList   <-  {| (FieldType / COMMA / Sp SEMICOLON)* |}
@@ -489,7 +490,7 @@ TableType   <-  Sp ({} TL FieldList DirtyTR {} Optional?)
 TypeAnn     <-  (COLON {} Type {})
             ->  TypeAnn
 DotsTypeAnn <-  (COLON {} (GenericPackType / Type) {})
-            ->  TypeAnn            
+            ->  TypeAnn
 ReturnTypeAnn
             <-  (COLON {} (VariadicType / Type !DOTS / TypeList) {})
             ->  TypeAnn
@@ -531,7 +532,7 @@ TypeAliasName
 TypeAlias   <-  Sp ({} (EXPORT %true / %false) TYPE TypeAliasName GenericsDef AssignOrEQ DirtyType {})
             ->  TypeAlias
 
-Do          <-  Sp ({} 
+Do          <-  Sp ({}
                 'do' Cut
                     {| (!END Action)* |}
                 NeedEnd)
@@ -545,7 +546,7 @@ Continue    <-  Sp ({} CONTINUE {} (Sp ';'? !%p))
 
 Return      <-  Sp ({} RETURN ReturnExpList {})
             ->  Return
-ReturnExpList 
+ReturnExpList
             <-  Sp !END !ELSEIF !ELSE {| Exp (Sp ',' MaybeExp)* |}
             /   Sp {| %nil |}
 
@@ -599,9 +600,9 @@ RepeatBody  <-  REPEAT
 
 Local       <-  Sp ({} LOCAL LocalNameList ((AssignOrEQ ExpList) / %nil) {})
             ->  Local
-Set         <-  Sp ({} SimpleList AssignOrEQ {} ExpList {}) 
+Set         <-  Sp ({} SimpleList AssignOrEQ {} ExpList {})
             ->  Set
-            /   Sp ({} SimpleList COMPASSIGN {} ExpList {}) 
+            /   Sp ({} SimpleList COMPASSIGN {} ExpList {})
             ->  CompSet
 
 LocalNameList
