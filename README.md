@@ -1,20 +1,16 @@
-# Roblox Luau Language Server + [Knit](https://github.com/Sleitnick/Knit) by [Sleitnick](https://github.com/Sleitnick)
+# Roblox Luau Language Server
 
-[Original Project](https://github.com/sumneko/lua-language-server) by [sumneko](https://github.com/sumneko)
-
-[NightrainsRbx Project](https://github.com/NightrainsRbx/RobloxLsp)
+[Original Project](https://github.com/sumneko/lua-language-server) by [sumneko](https://github.com/sumneko). I used [this](https://github.com/codesenseAye/roblox-lsp-plus-knit) version of it made by [codesenseAye](https://github.com/codesenseAye), big thanks to him for Knit support. I added more functionality to hover providers and support to work with [my edited version of better comments](https://marketplace.visualstudio.com/items?itemName=Msix29.better-comments-edited)
 
 Make sure you don't have both [Lua](https://marketplace.visualstudio.com/items?itemName=sumneko.lua) by sumneko and Roblox LSP enabled.
 
 ## Install In VSCode
-https://marketplace.visualstudio.com/items?itemName=danielAyeCodesense.roblox-lsp-plus-knit
-## More Info 
-https://devforum.roblox.com/t/roblox-lsp-full-intellisense-for-roblox-and-luau/717745
+
+[Extension Link](https://marketplace.visualstudio.com/items?itemName=Msix29.roblox-lsp-with-knit)
 
 ## Get Help
 
-Roblox OS Community Discord Server: https://discord.gg/c4nPcZHwFU
-
+[Roblox OS Community Discord Server](https://discord.gg/c4nPcZHwFU)
 
 ## Features
 
@@ -42,7 +38,7 @@ Roblox OS Community Discord Server: https://discord.gg/c4nPcZHwFU
 - [x] Multi Workspace
 - [x] Semantic Tokens
 
-## My Additions
+## CodesenseAye Additions
 
 - [x] Knit Go-to File
 - [x] Knit Go-to Method
@@ -51,7 +47,19 @@ Roblox OS Community Discord Server: https://discord.gg/c4nPcZHwFU
 - [x] Knit Method Auto Import
 - [x] Knit Method Hover
 
-### My Additions Preview
+## My additions
+
+- [x] Support for JSDoc (@params and @return)
+- [x] Some fixes to the hover provider
+- [] Adding a Roblox Studio plugin to allow autocompletion for game items (in progress)
+
+### Preview
+
+![avatar](https://i.imgur.com/4sgYDii.gif)
+![avatar](https://i.imgur.com/vHbKIJ0.gif)
+![avatar](https://cdn.discordapp.com/attachments/434146484758249482/778145929345368064/test.gif)
+
+### CodesenseAye Additions Preview
 
 ![avatar](https://i.imgur.com/3cv1NER.gif)
 Knit Method Auto Import
@@ -71,53 +79,41 @@ Knit Method Auto Completion
 ![avatar](https://i.imgur.com/0DPDhi2.png)
 Knit Method Hover (use CTRL to go-to method)
 
-### Preview
-
-![avatar](https://i.imgur.com/4sgYDii.gif)
-![avatar](https://i.imgur.com/vHbKIJ0.gif)
-![avatar](https://cdn.discordapp.com/attachments/434146484758249482/778145929345368064/test.gif)
-
-## Build
-
-You can download the extension with precompiled binaries here: https://github.com/NightrainsRbx/RobloxLsp/releases
-
-If you need to build your own binaries, follow the instructions at https://github.com/sumneko/lua-language-server
-
 ## Credit
 
-* [lua-language-server](https://github.com/sumneko/lua-language-server)
-* [vscode-luau](https://github.com/Dekkonot/vscode-luau)
-* [bee.lua](https://github.com/actboy168/bee.lua)
-* [luamake](https://github.com/actboy168/luamake)
-* [lni](https://github.com/actboy168/lni)
-* [LPegLabel](https://github.com/sqmedeiros/lpeglabel)
-* [LuaParser](https://github.com/sumneko/LuaParser)
-* [rcedit](https://github.com/electron/rcedit)
-* [ScreenToGif](https://github.com/NickeManarin/ScreenToGif)
-* [vscode-languageclient](https://github.com/microsoft/vscode-languageserver-node)
-* [lua.tmbundle](https://github.com/textmate/lua.tmbundle)
-* [EmmyLua](https://emmylua.github.io)
-* [lua-glob](https://github.com/sumneko/lua-glob)
-* [utility](https://github.com/sumneko/utility)
-* [json.lua](https://github.com/actboy168/json.lua)
+- [lua-language-server](https://github.com/sumneko/lua-language-server)
+- [vscode-luau](https://github.com/Dekkonot/vscode-luau)
+- [bee.lua](https://github.com/actboy168/bee.lua)
+- [luamake](https://github.com/actboy168/luamake)
+- [lni](https://github.com/actboy168/lni)
+- [LPegLabel](https://github.com/sqmedeiros/lpeglabel)
+- [LuaParser](https://github.com/sumneko/LuaParser)
+- [rcedit](https://github.com/electron/rcedit)
+- [ScreenToGif](https://github.com/NickeManarin/ScreenToGif)
+- [vscode-languageclient](https://github.com/microsoft/vscode-languageserver-node)
+- [lua.tmbundle](https://github.com/textmate/lua.tmbundle)
+- [EmmyLua](https://emmylua.github.io)
+- [lua-glob](https://github.com/sumneko/lua-glob)
+- [utility](https://github.com/sumneko/utility)
+- [json.lua](https://github.com/actboy168/json.lua)
 
 ## Acknowledgement
 
-* [NightrainsRbx](https://github.com/NightrainsRbx)
-* [sumneko](https://github.com/sumneko)
-* [actboy168](https://github.com/actboy168)
-* [Dekkonot](https://github.com/Dekkonot)
-* [Dmitry Sannikov](https://github.com/dasannikov)
-* [Jayden Charbonneau](https://github.com/Reshiram110)
-* [Stjepan Bakrac](https://github.com/z16)
-* [Peter Young](https://github.com/young40)
-* [Li Xiaobin](https://github.com/Xiaobin0860)
-* [Fedora7](https://github.com/Fedora7)
-* [Allen Shaw](https://github.com/shuxiao9058)
-* [Bartel](https://github.com/Letrab)
-* [Ruin0x11](https://github.com/Ruin0x11)
-* [uhziel](https://github.com/uhziel)
-* [火凌之](https://github.com/PhoenixZeng)
-* [CppCXY](https://github.com/CppCXY)
-* [Ketho](https://github.com/Ketho)
-* [Folke Lemaitre](https://github.com/folke)
+- [NightrainsRbx](https://github.com/NightrainsRbx)
+- [sumneko](https://github.com/sumneko)
+- [actboy168](https://github.com/actboy168)
+- [Dekkonot](https://github.com/Dekkonot)
+- [Dmitry Sannikov](https://github.com/dasannikov)
+- [Jayden Charbonneau](https://github.com/Reshiram110)
+- [Stjepan Bakrac](https://github.com/z16)
+- [Peter Young](https://github.com/young40)
+- [Li Xiaobin](https://github.com/Xiaobin0860)
+- [Fedora7](https://github.com/Fedora7)
+- [Allen Shaw](https://github.com/shuxiao9058)
+- [Bartel](https://github.com/Letrab)
+- [Ruin0x11](https://github.com/Ruin0x11)
+- [uhziel](https://github.com/uhziel)
+- [火凌之](https://github.com/PhoenixZeng)
+- [CppCXY](https://github.com/CppCXY)
+- [Ketho](https://github.com/Ketho)
+- [Folke Lemaitre](https://github.com/folke)

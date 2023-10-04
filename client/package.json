@@ -1,13 +1,13 @@
 {
-	"name": "roblox-lsp-with-knit",
-	"description": "Roblox LSP + Knit",
+	"name": "roblox-luau",
+	"description": "A Language Server for Luau.",
 	"author": "Msix29",
 	"license": "MIT",
 	"version": "0.0.1",
 	"publisher": "msix29",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/codesenseAye/roblox-lsp-plus-knit"
+		"url": "https://github.com/msix29/Roblox-Luau"
 	},
 	"engines": {
 		"vscode": "^1.60.0"
