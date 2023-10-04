@@ -1363,7 +1363,7 @@
 	],
 	"license": "MIT",
 	"main": "./client/out/extension",
-	"name": "roblox-luau",
+	"name": "roblox-luau-language-server",
 	"publisher": "msix29",
 	"repository": {
 		"type": "git",

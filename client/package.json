@@ -1,5 +1,5 @@
 {
-	"name": "roblox-luau",
+	"name": "roblox-luau-language-server",
 	"description": "A Language Server for Luau.",
 	"author": "Msix29",
 	"license": "MIT",
