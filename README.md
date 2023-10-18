@@ -51,7 +51,10 @@ Make sure you don't have both [Lua](https://marketplace.visualstudio.com/items?i
 
 - [x] Support for JSDoc (@params and @return)
 - [x] Some fixes to the hover provider
-- [] Adding a Roblox Studio plugin to allow autocompletion for game items (in progress)
+- [x] Knit.GetController only gets controllers now
+- [x] Knit.GetService only gets services now
+- [x] Knit.GetController/Knit.GetService don't get underlined if the corresponding file wasn't found
+- [x] Detecting Knit controllers/services have been changed from checking name of the file to checking the source of it
 
 ### Preview
 

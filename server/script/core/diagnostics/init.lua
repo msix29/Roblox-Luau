@@ -1,12 +1,12 @@
-local files  = require 'files'
-local define = require 'proto.define'
-local config = require 'config'
-local await  = require 'await'
-local vm     = require "vm.vm"
+local files = require("files")
+local define = require("proto.define")
+local config = require("config")
+local await = require("await")
+local vm = require("vm.vm")
 
 -- 把耗时最长的诊断放到最后面
 local diagPriority = {
-    ['suggested-import'] = true,
+    ["suggested-import"] = true,
 }
 
 local diagList = {}
@@ -27,18 +27,18 @@ local function check(uri, name, results)
     local neededFileStatus =   config.config.diagnostics.neededFileStatus[name]
                             or define.DiagnosticDefaultNeededFileStatus[name]
 
-    if neededFileStatus == 'None' then
+    if neededFileStatus == "None" then
         return
     end
 
-    if neededFileStatus == 'Opened' and not files.isOpen(uri) then
+    if neededFileStatus == "Opened" and not files.isOpen(uri) then
         return
     end
 
     local severity = define.DiagnosticSeverity[level]
     local clock = os.clock()
     local mark = {}
-    require('core.diagnostics.' .. name)(uri, function (result)
+    require("core.diagnostics." .. name)(uri, function (result)
         if vm.isDiagDisabledAt(uri, result.start, name) then
             return
         end
@@ -50,24 +50,24 @@ local function check(uri, name, results)
         end
         mark[result.start] = true
         result.level = severity or result.level
-        result.code  = name
+        result.code = name
         results[#results+1] = result
     end, name)
     local passed = os.clock() - clock
     if passed >= 0.5 then
-        log.warn(('Diagnostics [%s] @ [%s] takes [%.3f] sec!'):format(name, uri, passed))
+        log.warn(("Diagnostics [%s] @ [%s] takes [%.3f] sec!"):format(name, uri, passed))
     end
 end
 
 local function checkSuggestedImports(uri)
     local results = {}
 
-    local name = 'suggested-import'
+    local name = "suggested-import"
     local level =  config.config.diagnostics.severity[name]
     or define.DiagnosticDefaultSeverity[name]
     local severity = define.DiagnosticSeverity[level]
 
-    require('core.diagnostics.' .. name)(uri, function (result)
+    require("core.diagnostics." .. name)(uri, function (result)
         if vm.isDiagDisabledAt(uri, result.start, name) then
             return
         end
@@ -75,7 +75,7 @@ local function checkSuggestedImports(uri)
             return
         end
         result.level = severity or result.level
-        result.code  = name
+        result.code = name
         results[#results+1] = result
     end, name)
 

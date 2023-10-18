@@ -1,6 +1,6 @@
-local files = require 'files'
-local guide = require 'core.guide'
-local lang  = require 'language'
+local files = require("files")
+local guide = require("core.guide")
+local lang = require("language")
 
 return function (uri, callback)
     local ast = files.getAst(uri)
@@ -9,12 +9,12 @@ return function (uri, callback)
     end
 
     local lines = files.getLines(uri)
-    local text  = files.getText(uri)
+    local text = files.getText(uri)
 
-    guide.eachSourceType(ast.ast, 'table', function (source)
+    guide.eachSourceType(ast.ast, "table", function (source)
         for i = 1, #source do
             local field = source[i]
-            if field.type == 'call' then
+            if field.type == "call" then
                 local func = field.node
                 local args = field.args
                 if args then
@@ -22,9 +22,9 @@ return function (uri, callback)
                     local argsLine = guide.positionOf(lines, args.start)
                     if argsLine > funcLine then
                         callback {
-                            start   = field.start,
-                            finish  = field.finish,
-                            message = lang.script('DIAG_PREFIELD_CALL'
+                            start = field.start,
+                            finish = field.finish,
+                            message = lang.script("DIAG_PREFIELD_CALL"
                                 , text:sub(func.start, func.finish)
                                 , text:sub(args.start, args.finish)
                             )

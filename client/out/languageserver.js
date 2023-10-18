@@ -100,8 +100,8 @@ function start(context, documentSelector, folder) {
             '-E',
             context.asAbsolutePath(path.join('server', 'main.lua')),
             `--develop=${develop}`,
-            `--dbgport=${debuggerPort}`,
-            `--dbgwait=${debuggerWait}`,
+            `--debugport=${debuggerPort}`,
+            `--debugwait=${debuggerWait}`,
             commandParam,
         ]
     };
@@ -293,9 +293,9 @@ function onDecorations(client) {
             }
         }
     });
-    
+
     let textType2 = vscode_1.window.createTextEditorDecorationType({ opacity: "0.6", });
-    
+
     client.onNotification('$/luaComment', (params) => {
         let uri = params.uri;
         for (let index = 0; index < vscode_1.window.visibleTextEditors.length; index++) {
