@@ -1,9 +1,9 @@
-local files  = require 'files'
-local guide  = require 'core.guide'
-local vm     = require 'vm'
-local lang   = require 'language'
-local define = require 'proto.define'
-local await  = require 'await'
+local files = require("files")
+local guide = require("core.guide")
+local vm = require("vm")
+local lang = require("language")
+local define = require("proto.define")
+local await = require("await")
 
 local function countCallArgs(source)
     local result = 0
@@ -22,7 +22,7 @@ local function countFuncArgs(source)
     local lastArg = source.args[#source.args]
     if lastArg.type == "type.variadic" then
         return math.maxinteger
-    elseif source.args[#source.args].type == '...' then
+    elseif source.args[#source.args].type == "..." then
         return math.maxinteger
     end
     result = result + #source.args
@@ -35,7 +35,7 @@ local function countOverLoadArgs(source, doc)
     if not func.args or #func.args == 0 then
         return result
     end
-    if func.args[#func.args].type == '...' then
+    if func.args[#func.args].type == "..." then
         return math.maxinteger
     end
     result = result + #func.args
@@ -49,15 +49,15 @@ local function getFuncArgs(func)
         if def.value then
             def = def.value
         end
-        if def.type == 'function'
-        or def.type == 'type.function' then
+        if def.type == "function"
+        or def.type == "type.function" then
             local args = countFuncArgs(def)
             if not funcArgs or args > funcArgs then
                 funcArgs = args
             end
             if def.bindDocs then
                 for _, doc in ipairs(def.bindDocs) do
-                    if doc.type == 'doc.overload' then
+                    if doc.type == "doc.overload" then
                         args = countOverLoadArgs(def, doc)
                         if not funcArgs or args > funcArgs then
                             funcArgs = args
@@ -83,9 +83,9 @@ return function (uri, callback)
         return
     end
 
-    local cache = vm.getCache 'redundant-parameter'
+    local cache = vm.getCache "redundant-parameter"
 
-    guide.eachSourceType(ast.ast, 'call', function (source)
+    guide.eachSourceType(ast.ast, "call", function (source)
         local callArgs = countCallArgs(source)
         if callArgs == 0 then
             return
@@ -109,17 +109,17 @@ return function (uri, callback)
         if delta <= 0 then
             return
         end
-        if callArgs == 1 and source.node.type == 'getmethod' then
+        if callArgs == 1 and source.node.type == "getmethod" then
             return
         end
         for i = #source.args - delta + 1, #source.args do
             local arg = source.args[i]
             if arg then
                 callback {
-                    start   = arg.start,
-                    finish  = arg.finish,
-                    tags    = { define.DiagnosticTag.Unnecessary },
-                    message = lang.script('DIAG_OVER_MAX_ARGS', funcArgs, callArgs)
+                    start = arg.start,
+                    finish = arg.finish,
+                    tags = { define.DiagnosticTag.Unnecessary },
+                    message = lang.script("DIAG_OVER_MAX_ARGS", funcArgs, callArgs)
                 }
             end
         end

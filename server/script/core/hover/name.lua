@@ -52,6 +52,7 @@ local function asDocField(source)
 end
 
 function buildName(source, oop)
+    -- log.info(source.type, oop)
     if oop == nil then
         oop =  source.type == 'setmethod'
             or source.type == 'getmethod'

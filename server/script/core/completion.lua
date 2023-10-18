@@ -20,6 +20,7 @@ local defaultlibs  = require 'library.defaultlibs'
 local calcline     = require 'parser.calcline'
 local glob         = require 'glob'
 local furi         = require 'file-uri'
+local knitUtils    = require 'knit-utils'
 local client       = require 'provider.client'
 local plugin       = require 'plugin'
 
@@ -272,8 +273,8 @@ local function buildInsertKnitModule(ast, moduleName, definitionPos, declaration
         local indentation = string.rep(" ", currentLine.sp) .. string.rep("\t", currentLine.tab)
 
         local text = "\n" .. indentation .. "local " .. moduleName .. " = Knit.Get" .. moduleType .. "(\"" .. moduleName .. "\")\n"
-        text = text .. indentation .. "-- srry i couldnt find where your declarations and/or definitions were at\n"
-        
+        text = text .. indentation
+
         return {
             {
                 start   = start,
@@ -398,8 +399,8 @@ local function checkKnitModule(ast, word, offset, results)
         if source.node.field and (source.node.field[1] == "GetService" or source.node.field[1] == "GetController") then
             local moduleName = source.args[1][1]
 
-            log.info("found service import" .. moduleName)
-        
+            log.info("found service import " .. moduleName)
+
             if definitionPosition and definitionPosition > source.start then
                 -- import at the lowest position
                 return
@@ -444,7 +445,7 @@ local function checkKnitModule(ast, word, offset, results)
                 log.info(source[1] .. " is not a declaration it is a definition")
                 return
             end
-        
+
             if declarationPosition and declarationPosition > source.start then
                 -- import at the lowest position
                 return
@@ -658,20 +659,7 @@ local function checkKnitMethods(start, ast)
     if srcTableName and (srcTableName:find("Controller") or srcTableName:find("Service")) then
         -- gotta check to make sure its not a roblox service and knit service
         --TODO: ^ knit service vs roblox service check
-        local knitModuleUri
-
-        for _, uri in ipairs(files.getAllUris()) do
-            if uri:find(srcTableName) then
-                knitModuleUri = uri
-
-                if uri:find("init%.lua") then
-                    -- if this was a init.lua file under a folder, this would be where the real methods are located
-                    -- so stop here and make sure nothing overwrites it
-                    log.info("STOP FULL STOP")
-                    break
-                end
-            end
-        end
+        local knitModuleUri = knitUtils.resolveKnitRequires(srcTableName, false)
 
         if not knitModuleUri then
             -- failed to find the knit module uri to get all of the methods
@@ -726,16 +714,16 @@ local function checkFieldThen(name, src, word, start, offset, parent, oop, text,
     -- end
 
     -- code to get knit services / controllers to be auto completed across different files
-    -- search for the uri and then find the methodand replace the src variable with the method in the file
+    -- search for the uri and then find the method and replace the src variable with the method in the file
 
     -- but first we need to find the name of the table that we are auto filling for
     -- search backwards from where our cursor is at
     -- if we hit a word called "Client" then go back once more
     -- this should work for both .Client and regular knit methods and result in the name of the service/controller
-    
+
     local sourceIsClientMethod = false
     log.info("GET TYPE")
-    
+
     for _, data in ipairs(checkKnitMethods(start, ast)) do
         local source, knitMethodName = data[1], data[2]
 
@@ -746,7 +734,7 @@ local function checkFieldThen(name, src, word, start, offset, parent, oop, text,
     end
 
     local value = guide.getObjectValue(infer or src) or (infer or src)
-    
+
     local kind = define.CompletionItemKind.Field
     if value.type == 'function'
     or value.type == 'doc.type.function'
@@ -797,7 +785,7 @@ local function checkFieldThen(name, src, word, start, offset, parent, oop, text,
         end
     elseif not infer and (config.config.intelliSense.searchDepth > 0 or value.type == "typeof") then
         local infers = vm.getInfers(value, 0, {searchAll = true})
-        
+
         for _, infer in ipairs(infers) do
             if infer.source then
                 return checkFieldThen(name, src, word, start, offset, parent, oop, text, results, infer.source, ast)
@@ -901,7 +889,7 @@ local function checkFieldOfRefs(refs, ast, word, start, offset, parent, oop, res
     --intellisense gives up at some point searching for variables but here we make sure its included
     for _, data in ipairs(foundKnitMethods) do
         local source, knitMethodName = data[1], data[2]
-        
+
         if not fields[knitMethodName] then
             checkFieldThen(knitMethodName, source, word, start, offset, parent, oop, text, results, nil, ast)
         end
@@ -1197,16 +1185,16 @@ end
 
 local function checkFunctionArgByDocParam(ast, word, start, results)
     log.info("ARGS")
-    
+
     -- old attempt to get the params to show up while typing ( this is not the right location)
     -- local srcFullText = files.getText(ast.uri)
     -- local methodName, backwardPos = lookBackward.findWord(srcFullText, start - 1)
     -- local tableName, backwardPos = lookBackward.findWord(srcFullText, backwardPos - 2)
-    
+
     -- if tableName and tableName == "Client" then
     --     tableName = lookBackward.findWord(srcFullText, backwardPos - 2)
     -- end
-    
+
     -- local knitModuleUri
 
     -- for _, thisUri in ipairs(files.getAllUris()) do
@@ -1226,7 +1214,7 @@ local function checkFunctionArgByDocParam(ast, word, start, results)
     --         guide.eachSourceType(uriAst.ast, "setmethod", function(src)
     --             local textInRange = knitModuleText:sub(src.start, src.finish)
     --             textInRange = textInRange:sub(textInRange:find(":") + 1, -1)
-            
+
     --             if textInRange == methodName then
     --                 func = src
     --             end
@@ -1531,7 +1519,9 @@ local function isName(ast, offset)
     end)
 end
 
-local function isType(ast, offset)
+local function isType(ast, offset, uri)
+    if knitUtils.isKnitFile(uri) then return false end
+
     return guide.eachSourceContain(ast.ast, offset, function (source)
         if guide.isTypeAnn(source) then
             return true
@@ -1622,7 +1612,7 @@ local function tryWord(ast, text, offset, triggerCharacter, results)
                 return
             end
             if not hasSpace then
-                if afterLocal then -- local variable 
+                if afterLocal then -- local variable
                     checkProvideLocal(ast, word, start, results)
                 else
                     checkTableField(ast, word, start, results)
@@ -2860,7 +2850,7 @@ local function completion(uri, offset, triggerCharacter)
         if getComment(ast, offset) then
             tryLuaDoc(ast, text, offset, results)
             tryComment(ast, text, offset, results)
-        elseif isType(ast, offset) then
+        elseif isType(ast, offset, uri) then
             tryType(ast, text, offset, results)
         else
             trySpecial(ast, text, offset, results) -- require?

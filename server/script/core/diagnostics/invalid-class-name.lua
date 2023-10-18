@@ -1,15 +1,15 @@
-local files   = require 'files'
-local guide   = require 'core.guide'
-local lang    = require 'language'
-local rbxlibs = require 'library.rbxlibs'
-local vm      = require 'vm'
+local files = require("files")
+local guide = require("core.guide")
+local lang = require("language")
+local rbxlibs = require("library.rbxlibs")
+local vm = require("vm")
 
 return function (uri, callback)
     local ast = files.getAst(uri)
     if not ast then
         return
     end
-    guide.eachSourceType(ast.ast, 'callargs', function (source)
+    guide.eachSourceType(ast.ast, "callargs", function (source)
         local func = source.parent.node
         if func.special == "type" or func.special == "typeof" then
             local parent = source.parent.parent
@@ -22,9 +22,9 @@ return function (uri, callback)
                     end
                 end
                 callback {
-                    start   = parent[2].start,
-                    finish  = parent[2].finish,
-                    message = lang.script('DIAG_INVALID_CLASSNAME', (func.special == "type" and "primitive " or "") .. "type", parent[2][1]),
+                    start = parent[2].start,
+                    finish = parent[2].finish,
+                    message = lang.script("DIAG_INVALID_CLASSNAME", (func.special == "type" and "primitive " or "") .. "type", parent[2][1]),
                 }
             end
         end
@@ -37,9 +37,9 @@ return function (uri, callback)
                 local arg = source[1]
                 if arg and arg.type == "string" and not rbxlibs.CreatableInstances[arg[1]] then
                     callback {
-                        start   = arg.start,
-                        finish  = arg.finish,
-                        message = lang.script('DIAG_INVALID_CLASSNAME', "Creatable Instance", arg[1]),
+                        start = arg.start,
+                        finish = arg.finish,
+                        message = lang.script("DIAG_INVALID_CLASSNAME", "Creatable Instance", arg[1]),
                     }
                 end
                 break
@@ -47,9 +47,9 @@ return function (uri, callback)
                 local arg = source[2]
                 if arg and arg.type == "string" and not rbxlibs.Services[arg[1]] then
                     callback {
-                        start   = arg.start,
-                        finish  = arg.finish,
-                        message = lang.script('DIAG_INVALID_CLASSNAME', "Service", arg[1]),
+                        start = arg.start,
+                        finish = arg.finish,
+                        message = lang.script("DIAG_INVALID_CLASSNAME", "Service", arg[1]),
                     }
                 end
                 break
@@ -57,9 +57,9 @@ return function (uri, callback)
                 local arg = source[2]
                 if arg and arg.type == "string" and not rbxlibs.ClassNames[arg[1]] then
                     callback {
-                        start   = arg.start,
-                        finish  = arg.finish,
-                        message = lang.script('DIAG_INVALID_CLASSNAME', "Instance", arg[1]),
+                        start = arg.start,
+                        finish = arg.finish,
+                        message = lang.script("DIAG_INVALID_CLASSNAME", "Instance", arg[1]),
                     }
                 end
                 break
@@ -67,9 +67,9 @@ return function (uri, callback)
                 local arg = source[2]
                 if arg and arg.type == "string" and not rbxlibs.Enums[arg[1]] then
                     callback {
-                        start   = arg.start,
-                        finish  = arg.finish,
-                        message = lang.script('DIAG_INVALID_CLASSNAME', "Enum", arg[1]),
+                        start = arg.start,
+                        finish = arg.finish,
+                        message = lang.script("DIAG_INVALID_CLASSNAME", "Enum", arg[1]),
                     }
                 end
                 break
@@ -77,9 +77,9 @@ return function (uri, callback)
                 local arg = source[1]
                 if arg and arg.type == "string" and not rbxlibs.BrickColors[arg[1]] then
                     callback {
-                        start   = arg.start,
-                        finish  = arg.finish,
-                        message = lang.script('DIAG_INVALID_CLASSNAME', "BrickColor", arg[1]),
+                        start = arg.start,
+                        finish = arg.finish,
+                        message = lang.script("DIAG_INVALID_CLASSNAME", "BrickColor", arg[1]),
                     }
                 end
                 break

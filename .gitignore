@@ -1,0 +1,5 @@
+server/log
+server/bin
+client/node_modules
+node_modules
+.vscode*

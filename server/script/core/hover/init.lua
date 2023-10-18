@@ -1,4 +1,5 @@
 local files      = require 'files'
+local knitUtils      = require 'knit-utils'
 local guide      = require 'core.guide'
 local vm         = require 'vm'
 local getLabel   = require 'core.hover.label'
@@ -266,44 +267,19 @@ local function getHoverByUri(uri, offset)
     if not source then
         return nil
     end
-    
+
     -- find the knit module method and replace the source with its proper source
     if source.type == "method" then
         local methodName = source[1]
         local tableName = source.parent and source.parent.parent and source.parent.parent.args and source.parent.parent.args[1]
-        
+
         if tableName then
-
             if not tableName[1] then
-                -- now this is probably .Client:MethodName()
-
-                if tableName.field and tableName.field[1] == "Client" then
-                    -- for sure now
-                    tableName = tableName.field.parent.node[1]
-                    -- this is the name of the knit module
-                end
-            else
-                -- not .Client:MethodName()
-                tableName = tableName[1]
+                tableName = tableName.field and tableName.field[1] or tableName[1]
             end
 
             if type(tableName) == "string" then
-
-                -- log.tableInfo(source)
-                local knitModuleUri
-
-                for _, thisUri in ipairs(files.getAllUris()) do
-                    if thisUri:find(tableName) then
-                        knitModuleUri = thisUri
-                            
-                        if thisUri:find("init%.lua") then
-                            -- if this was a init.lua file under a folder, this would be where the real methods are located
-                            -- so stop here and make sure nothing overwrites it
-                            log.info("HOVER STOP FULL STOP")
-                            break
-                        end
-                    end
-                end
+                local knitModuleUri = knitUtils.resolveKnitRequires(tableName, false)
 
                 if knitModuleUri then
                     local uriAst = files.getAst(knitModuleUri)
@@ -312,18 +288,14 @@ local function getHoverByUri(uri, offset)
                     if tableName and (tableName:find("Controller") or tableName:find("Service")) then
                         guide.eachSourceType(uriAst.ast, "setmethod", function(src)
                             local textInRange = knitModuleText:sub(src.start, src.finish)
-                            textInRange = textInRange:sub(textInRange:find(":") + 1, -1)                
-                        
+                            textInRange = textInRange:sub(textInRange:find(":") + 1, -1)
+
                             if textInRange == methodName then
                                 source = src
                             end
                         end)
                     end
-                else
-                    -- failed to find the knit module uri to get the hover method
                 end
-            else
-                -- the result was a table so its not a knit module call
             end
         end
     end

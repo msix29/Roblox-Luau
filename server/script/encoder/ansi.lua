@@ -1,24 +1,22 @@
-local platform = require 'bee.platform'
-local unicode
+local platform = require("bee.platform")
+local unicode = platform.OS == "Windows" and require("bee.unicode") or nil
 
-if platform.OS == 'Windows' then
-    unicode = require 'bee.unicode'
-end
+local ansi = {}
 
-local m = {}
+--- Turn text into utf8
+---@param text string
+function ansi.toutf8(text)
+    if not unicode then return text end
 
-function m.toutf8(text)
-    if not unicode then
-        return text
-    end
     return unicode.a2u(text)
 end
 
-function m.fromutf8(text)
-    if not unicode then
-        return text
-    end
+--- Turn utf8 to text
+---@param text string
+function ansi.fromutf8(text)
+    if not unicode then return text end
+
     return unicode.u2a(text)
 end
 
-return m
+return ansi
