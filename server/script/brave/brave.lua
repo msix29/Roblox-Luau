@@ -1,66 +1,72 @@
-local thread = require 'bee.thread'
+local thread = require("bee.thread")
 
-local taskPad = thread.channel('taskpad')
-local waiter  = thread.channel('waiter')
+local taskPad = thread.channel("taskpad")
+local waiter  = thread.channel("waiter")
 
 ---@class pub_brave
-local m = {}
-m.type = 'brave'
-m.ability = {}
-m.queue = {}
+local brave = {}
+brave.type = "brave"
+brave.ability = {}
+brave.queue = {}
 
---- 注册成为勇者
-function m.register(id)
-    m.id = id
+--- Register to become a warrior
+---@param id number
+function brave.register(id)
+    brave.id = id
 
-    if #m.queue > 0 then
-        for _, info in ipairs(m.queue) do
-            waiter:push(m.id, info.name, info.params)
+    if #brave.queue > 0 then
+        for _, info in ipairs(brave.queue) do
+            waiter:push(brave.id, info.name, info.params)
         end
     end
-    m.queue = nil
 
-    m.start()
+    brave.queue = nil
+    brave.start()
 end
 
---- 注册能力
-function m.on(name, callback)
-    m.ability[name] = callback
+--- Registration ability
+---@param name string
+---@param callback function
+function brave.on(name, callback)
+    brave.ability[name] = callback
 end
 
---- 报告
-function m.push(name, params)
-    if m.id then
-        waiter:push(m.id, name, params)
+--- Report
+---@param name string
+---@param params any
+function brave.push(name, params)
+    if brave.id then
+        waiter:push(brave.id, name, params)
+
     else
-        m.queue[#m.queue+1] = {
+        brave.queue[#brave.queue+1] = {
             name   = name,
             params = params,
         }
     end
 end
 
---- 开始找工作
-function m.start()
-    m.push('mem', collectgarbage 'count')
+--- Start looking for a job
+function brave.start()
+    brave.push("mem", collectgarbage "count")
+
     while true do
         local name, id, params = taskPad:bpop()
-        local ability = m.ability[name]
-        -- TODO
+        local ability = brave.ability[name]
+
         if not ability then
-            waiter:push(m.id, id)
-            log.error('Brave can not handle this work: ' .. name)
+            waiter:push(brave.id, id)
+            log.error("Brave can not handle this work: "..name)
+
             goto CONTINUE
         end
+
         local ok, res = xpcall(ability, log.error, params)
-        if ok then
-            waiter:push(m.id, id, res)
-        else
-            waiter:push(m.id, id)
-        end
-        m.push('mem', collectgarbage 'count')
+        waiter:push(brave.id, id, ok and res or nil)
+        brave.push("mem", collectgarbage "count")
+
         ::CONTINUE::
     end
 end
 
-return m
+return brave

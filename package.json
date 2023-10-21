@@ -1,6 +1,5 @@
 {
 	"activationEvents": [
-		"onLanguage:lua",
 		"workspaceContains:/*.project.json"
 	],
 	"author": "Msix29",
@@ -1349,7 +1348,7 @@
 			}
 		]
 	},
-	"description": "A Language Server for Luau.",
+	"description": "A Language server-client for Luau.",
 	"displayName": "Roblox Luau",
 	"engines": {
 		"vscode": "^1.60.0"
@@ -1369,7 +1368,7 @@
 		"type": "git",
 		"url": "https://github.com/msix29/Roblox-Luau"
 	},
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"dependencies": {
 		"body-parser": "^1.20.2",
 		"ejs": "^3.1.9",

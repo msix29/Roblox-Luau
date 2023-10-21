@@ -1,8 +1,8 @@
-local files = require 'files'
-local guide = require 'core.guide'
-local lang  = require 'language'
-local rbxlibs = require 'library.rbxlibs'
-local vm = require 'vm'
+local files = require("files")
+local guide = require("core.guide")
+local lang = require("language")
+local rbxlibs = require("library.rbxlibs")
+local vm = require("vm")
 
 local function checkSelfRecursiveTypeAlias(typeAlias, value, mark)
     mark = mark or {}
@@ -27,7 +27,7 @@ local function checkSelfRecursiveTypeAlias(typeAlias, value, mark)
 end
 
 return function (uri, callback)
-    local ast   = files.getAst(uri)
+    local ast = files.getAst(uri)
     if not ast then
         return
     end
@@ -36,7 +36,7 @@ return function (uri, callback)
             callback {
                 start = source.start,
                 finish = source.finish,
-                message = lang.script('TYPE_ALIAS_RECURSIVE')
+                message = lang.script("TYPE_ALIAS_RECURSIVE")
             }
             return
         end
@@ -45,7 +45,7 @@ return function (uri, callback)
             callback {
                 start = source.name.start,
                 finish = source.name.finish,
-                message = lang.script('TYPE_REDEFINED', source.name[1]),
+                message = lang.script("TYPE_REDEFINED", source.name[1]),
                 related = {
                     {
                         start = other.start,
@@ -63,7 +63,7 @@ return function (uri, callback)
                     callback {
                         start = generic.start,
                         finish = generic.finish,
-                        message = lang.script('TYPE_REDEFINED', generic[1]),
+                        message = lang.script("TYPE_REDEFINED", generic[1]),
                         related = {
                             {
                                 start = other.start,
@@ -77,7 +77,7 @@ return function (uri, callback)
                     callback {
                         start = generic.start,
                         finish = generic.finish,
-                        message = lang.script('TYPE_REDEFINED', generic[1]),
+                        message = lang.script("TYPE_REDEFINED", generic[1]),
                         related = {
                             {
                                 start = names[generic[1]].start,

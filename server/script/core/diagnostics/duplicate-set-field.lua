@@ -1,8 +1,8 @@
-local files   = require 'files'
-local guide   = require 'core.guide'
-local lang    = require 'language'
-local define  = require 'proto.define'
-local vm      = require 'vm'
+local files = require("files")
+local guide = require("core.guide")
+local lang = require("language")
+local define = require("proto.define")
+local vm = require("vm")
 
 return function (uri, callback)
     local ast = files.getAst(uri)
@@ -10,34 +10,34 @@ return function (uri, callback)
         return
     end
 
-    guide.eachSourceType(ast.ast, 'local', function (source)
+    guide.eachSourceType(ast.ast, "local", function (source)
         if not source.ref then
             return
         end
         local sets = {}
         for _, ref in ipairs(source.ref) do
-            if ref.type ~= 'getlocal' then
+            if ref.type ~= "getlocal" then
                 goto CONTINUE
             end
             local nxt = ref.next
             if not nxt then
                 goto CONTINUE
             end
-            if nxt.type == 'setfield'
-            or nxt.type == 'setmethod'
-            or nxt.type == 'setindex' then
+            if nxt.type == "setfield"
+            or nxt.type == "setmethod"
+            or nxt.type == "setindex" then
                 local name = guide.getKeyName(nxt)
                 if not name then
                     goto CONTINUE
                 end
                 local value = guide.getObjectValue(nxt)
-                if not value or value.type ~= 'function' then
+                if not value or value.type ~= "function" then
                     goto CONTINUE
                 end
                 if not sets[name] then
                     sets[name] = {}
                 end
-                sets[name][#sets[name]+1] = nxt
+                sets[name][#sets[name] + 1] = nxt
             end
             ::CONTINUE::
         end
@@ -61,29 +61,29 @@ return function (uri, callback)
                 for i = 1, #defs do
                     local def = defs[i]
                     related[i] = {
-                        start  = def.start,
+                        start = def.start,
                         finish = def.finish,
-                        uri    = uri,
+                        uri = uri,
                     }
                 end
                 for i = 1, #defs - 1 do
                     local def = defs[i]
                     callback {
-                        start   = def.start,
-                        finish  = def.finish,
+                        start = def.start,
+                        finish = def.finish,
                         related = related,
-                        message = lang.script('DIAG_DUPLICATE_SET_FIELD', name),
-                        level   = define.DiagnosticSeverity.Hint,
-                        tags    = { define.DiagnosticTag.Unnecessary },
+                        message = lang.script("DIAG_DUPLICATE_SET_FIELD", name),
+                        level = define.DiagnosticSeverity.Hint,
+                        tags = { define.DiagnosticTag.Unnecessary },
                     }
                 end
                 for i = #defs, #defs do
                     local def = defs[i]
                     callback {
-                        start   = def.start,
-                        finish  = def.finish,
+                        start = def.start,
+                        finish = def.finish,
                         related = related,
-                        message = lang.script('DIAG_DUPLICATE_SET_FIELD', name),
+                        message = lang.script("DIAG_DUPLICATE_SET_FIELD", name),
                     }
                 end
                 ::CONTINUE_BLOCKS::

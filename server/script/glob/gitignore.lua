@@ -1,46 +1,110 @@
-local m = require 'lpeglabel'
-local matcher = require 'glob.matcher'
+local lpeglabel = require("lpeglabel")
+local matcher = require("glob.matcher")
 
-local function prop(name, pat)
-    return m.Cg(m.Cc(true), name) * pat
+--- Constructs a parsing expression for matching a property with a given name and pattern.
+---@param name string
+---@param pattern number
+---@return number
+local function prop(name, pattern)
+    return lpeglabel.Cg(lpeglabel.Cc(true), name) * pattern
 end
 
-local function object(type, pat)
-    return m.Ct(
-        m.Cg(m.Cc(type), 'type') *
-        m.Cg(pat, 'value')
-    )
+--- Constructs a parsing expression for matching an object with a specified type and pattern.
+---@param type string
+---@param pattern number
+---@return number
+local function object(type, pattern)
+    return lpeglabel.Ct(lpeglabel.Cg(lpeglabel.Cc(type), "type") * lpeglabel.Cg(pattern, "value"))
 end
 
-local function expect(p, err)
-    return p + m.T(err)
+--- Constructs a parsing expression for matching an expression and provides an error message if it doesn"t match.
+---@param p number
+---@param error string
+---@return number
+local function expect(p, error)
+    return p + lpeglabel.T(error)
 end
 
-local parser = m.P {
-    'Main',
-    ['Sp']          = m.S(' \t')^0,
-    ['Slash']       = m.S('/')^1,
-    ['Main']        = m.Ct(m.V'Sp' * m.P'{' * m.V'Pattern' * (',' * expect(m.V'Pattern', 'Miss exp after ","'))^0 * m.P'}')
-                    + m.Ct(m.V'Pattern')
-                    + m.T'Main Failed'
-                    ,
-    ['Pattern']     = m.Ct(m.V'Sp' * prop('neg', m.P'!') * expect(m.V'Unit', 'Miss exp after "!"'))
-                    + m.Ct(m.V'Unit')
-                    ,
-    ['NeedRoot']    = prop('root', (m.P'.' * m.V'Slash' + m.V'Slash')),
-    ['Unit']        = m.V'Sp' * m.V'NeedRoot'^-1 * expect(m.V'Exp', 'Miss exp') * m.V'Sp',
-    ['Exp']         = m.V'Sp' * (m.V'FSymbol' + object('/', m.V'Slash') + m.V'Word')^0 * m.V'Sp',
-    ['Word']        = object('word', m.Ct((m.V'CSymbol' + m.V'Char' - m.V'FSymbol')^1)),
-    ['CSymbol']     = object('*',    m.P'*')
-                    + object('?',    m.P'?')
-                    + object('[]',   m.V'Range')
-                    ,
-    ['SimpleChar']  = m.P(1) - m.S',{}[]*?/',
-    ['EscChar']     = m.P'\\' / '' * m.P(1),
-    ['Char']        = object('char', m.Cs((m.V'EscChar' + m.V'SimpleChar')^1)),
-    ['FSymbol']     = object('**', m.P'**'),
-    ['Range']       = m.P'[' * m.Ct(m.V'RangeUnit'^0) * m.P']'^-1,
-    ['RangeUnit']   = m.Ct(- m.P']' * m.C(m.P(1)) * (m.P'-' * - m.P']' * m.C(m.P(1)))^-1),
+local parser = lpeglabel.P {
+    "Main",
+    ["Sp"] = lpeglabel.S(" \t") ^ 0,
+    ["Slash"] = lpeglabel.S("/") ^ 1,
+    ["Main"] = lpeglabel.Ct(
+                lpeglabel.V("Sp")
+                * lpeglabel.P("{")
+                * lpeglabel.V("Pattern")
+                * ("," * expect(lpeglabel.V("Pattern"), "Miss exp after \",\"")) ^ 0
+                * lpeglabel.P("}")
+            ) + lpeglabel.Ct(lpeglabel.V("Pattern"))+ lpeglabel.T("Main Failed"),
+    ["Pattern"] = lpeglabel.Ct(
+                lpeglabel.V("Sp")
+                * prop("neg", lpeglabel.P("!"))
+                * expect(lpeglabel.V("Unit"), "Miss exp after \"!\"")
+            ) + lpeglabel.Ct(lpeglabel.V("Unit")),
+    ["NeedRoot"] = prop(
+                "root",
+                (
+                    lpeglabel.P(".")
+                    * lpeglabel.V("Slash")
+                    + lpeglabel.V("Slash")
+                )
+            ),
+    ["Unit"] = (
+        lpeglabel.V("Sp")
+        * lpeglabel.V("NeedRoot") ^ -1
+        * expect(lpeglabel.V("Exp"), "Miss exp") * lpeglabel.V("Sp")
+    ),
+    ["Exp"] = (
+        lpeglabel.V("Sp")
+        * (
+            lpeglabel.V("FSymbol")
+            + object("/", lpeglabel.V("Slash")) + lpeglabel.V("Word")
+        )
+        ^ 0
+        * lpeglabel.V("Sp")
+    ),
+    ["Word"] = object(
+        "word",
+        lpeglabel.Ct(
+            (
+                lpeglabel.V("CSymbol")
+                + lpeglabel.V("Char")
+                - lpeglabel.V("FSymbol")
+            ) ^ 1
+        )
+    ),
+    ["CSymbol"] = (
+        object("*", lpeglabel.P("*"))
+        + object("?", lpeglabel.P("?"))
+        + object("[]", lpeglabel.V("Range"))
+    ),
+    ["SimpleChar"] = lpeglabel.P(1) - lpeglabel.S(",{}[]*?/"),
+    ["EscChar"] = lpeglabel.P("\\") / "" * lpeglabel.P(1),
+    ["Char"] = object(
+        "char",
+        lpeglabel.Cs(
+            (
+                lpeglabel.V("EscChar")
+                + lpeglabel.V("SimpleChar")
+            )
+            ^ 1
+        )
+    ),
+    ["FSymbol"] = object("**", lpeglabel.P("**")),
+    ["Range"] = (
+        lpeglabel.P("[")
+        * lpeglabel.Ct(lpeglabel.V("RangeUnit")^ 0)
+        * lpeglabel.P("]")^ -1
+    ),
+    ["RangeUnit"] = lpeglabel.Ct(
+        -lpeglabel.P("]")
+        * lpeglabel.C(lpeglabel.P(1))
+        * (
+            lpeglabel.P("-")
+            * -lpeglabel.P("]")
+            * lpeglabel.C(lpeglabel.P(1))
+        ) ^ -1
+    ),
 }
 
 ---@class gitignore
@@ -49,193 +113,220 @@ local parser = m.P {
 ---@field errors table[]
 ---@field matcher table
 ---@field interface function[]
-local mt = {}
-mt.__index = mt
-mt.__name = 'gitignore'
+local metatable = {}
+metatable.__index = metatable
+metatable.__name = "gitignore"
 
-function mt:addPattern(pat)
-    if type(pat) ~= 'string' then
-        return
-    end
+--- Adds a pattern to the pattern matching object and compiles it for pattern matching.
+---@param pattern string
+function metatable:addPattern(pat)
+    if type(pat) ~= "string" then return end
+
     self.pattern[#self.pattern+1] = pat
-    if self.options.ignoreCase then
-        pat = pat:lower()
-    end
+    if self.options.ignoreCase then pat = pat:lower() end
+
     local states, err = parser:match(pat)
     if not states then
         self.errors[#self.errors+1] = {
             pattern = pat,
             message = err
         }
+
         return
     end
+
     for _, state in ipairs(states) do
         self.matcher[#self.matcher+1] = matcher(state)
     end
 end
 
-function mt:setOption(op, val)
-    if val == nil then
-        val = true
-    end
-    self.options[op] = val
+--- Sets an option for the pattern matching object.
+---@param option string
+---@param value any
+function metatable:setOption(option, value)
+    self.options[option] = value == nil and true or value
 end
 
----@param key string | "'type'" | "'list'"
+--- Sets an interface using the given key
+---@param key string | ""type"" | ""list""
 ---@param func function | "function (path) end"
-function mt:setInterface(key, func)
-    if type(func) ~= 'function' then
-        return
-    end
+function metatable:setInterface(key, func)
+    if type(func) ~= "function" then return end
+
     self.interface[key] = func
 end
 
-function mt:callInterface(name, ...)
-    local func = self.interface[name]
-    return func(...)
+--- Calls an interface with the given name and pass the provided parameters
+---@param name string
+---@param ... any
+function metatable:callInterface(name, ...)
+    return self.interface[name](...)
 end
 
-function mt:hasInterface(name)
+--- Checks if an interface with the name "name" exists
+---@param name string
+function metatable:hasInterface(name)
     return self.interface[name] ~= nil
 end
 
-function mt:checkDirectory(catch, path, matcher)
-    if not self:hasInterface 'type' then
-        return true
-    end
-    if not matcher:isNeedDirectory() then
-        return true
-    end
-    if #catch < #path then
-        -- if path is 'a/b/c' and catch is 'a/b'
-        -- then the catch must be a directory
-        return true
-    else
-        return self:callInterface('type', path) == 'directory'
-    end
+--- Checks if the specified path and matcher combination should be considered a directory or not.
+---@param catch string
+---@param path string
+---@param matcher table
+---@return boolean
+function metatable:checkDirectory(catch, path, matcher)
+    if not self:hasInterface "type" then return true end
+    if not matcher:isNeedDirectory() then return true end
+    if #catch < #path then return true end
+    --? if path is "a/b/c" and catch is "a/b" then the catch must be a directory
+
+    return self:callInterface("type", path) == "directory"
 end
 
-function mt:simpleMatch(path)
+--- Performs a simple path matching operation using a list of matchers.
+---@param path string
+---@return boolean|nil
+function metatable:simpleMatch(path)
     path = self:getRelativePath(path)
+
     for i = #self.matcher, 1, -1 do
         local matcher = self.matcher[i]
         local catch = matcher(path)
+
         if catch and self:checkDirectory(catch, path, matcher) then
-            if matcher:isNegative() then
-                return false
-            else
-                return true
-            end
+            return not matcher:isNegative()
         end
     end
+
     return nil
 end
 
-function mt:finishMatch(path)
+--- Continuously checks for matches while constructing paths from left to right.
+---@param path string
+---@return boolean|nil
+function metatable:finishMatch(path)
     local paths = {}
-    for filename in path:gmatch '[^/\\]+' do
+    for filename in path:gmatch "[^/\\]+" do
         paths[#paths+1] = filename
     end
+
     for i = 1, #paths do
-        local newPath = table.concat(paths, '/', 1, i)
+        local newPath = table.concat(paths, "/", 1, i)
         local passed = self:simpleMatch(newPath)
-        if passed == true then
-            return true
-        elseif passed == false then
-            return false
+
+        if passed == true or passed == false then
+            return passed
         end
     end
+
     return false
 end
 
-function mt:getRelativePath(path)
-    local root = self.options.root or ''
+--- Adjusts the provided path to be relative to a specified root path.
+---@param path string
+---@return string
+function metatable:getRelativePath(path)
+    local root = self.options.root or ""
+
     if self.options.ignoreCase then
         path = path:lower()
         root = root:lower()
     end
-    path = path:gsub('^[/\\]+', ''):gsub('[/\\]+', '/')
-    root = root:gsub('^[/\\]+', ''):gsub('[/\\]+', '/')
+
+    path = path:gsub("^[/\\]+", ""):gsub("[/\\]+", "/")
+    root = root:gsub("^[/\\]+", ""):gsub("[/\\]+", "/")
+
     if path:sub(1, #root) == root then
         path = path:sub(#root + 1)
-        path = path:gsub('^[/\\]+', '')
+        path = path:gsub("^[/\\]+", "")
     end
+
     return path
 end
 
-function mt:scan(path, callback)
+--- Scans a path for files and directories that match the defined patterns.
+---@param path string
+---@param callback function
+---@return table
+function metatable:scan(path, callback)
+    if type(callback) ~= "function" then callback = nil end
+
     local files = {}
-    if type(callback) ~= 'function' then
-        callback = nil
-    end
     local list = {}
 
     local function check(current)
-        local fileType = self:callInterface('type', current)
-        if fileType == 'file' then
-            if callback then
-                callback(current)
-            end
-            files[#files+1] = current
-        elseif fileType == 'directory' then
-            local result = self:callInterface('list', current)
-            if type(result) == 'table' then
+        local fileType = self:callInterface("type", current)
+
+        if fileType == "file" then
+            if callback then callback(current) end
+
+            files[#files + 1] = current
+
+        elseif fileType == "directory" then
+            local result = self:callInterface("list", current)
+
+            if type(result) == "table" then
                 for _, path in ipairs(result) do
-                    local filename = path:match '([^/\\]+)[/\\]*$'
-                    if  filename
-                    and filename ~= '.'
-                    and filename ~= '..' then
+                    local filename = path:match("([^/\\]+)[/\\]*$")
+
+                    if filename and filename ~= "." and filename ~= ".." then
                         list[#list+1] = path
                     end
                 end
             end
         end
     end
-    if not self:simpleMatch(path) then
-        check(path)
-    end
+
+    if not self:simpleMatch(path) then check(path) end
+
     while #list > 0 do
         local current = list[#list]
-        if not current then
-            break
-        end
+        if not current then break end
+
         list[#list] = nil
-        if not self:simpleMatch(current) then
-            check(current)
-        end
+        if not self:simpleMatch(current) then check(current) end
     end
+
     return files
 end
 
-function mt:__call(path)
-    path = self:getRelativePath(path)
-    return self:finishMatch(path)
+--- Invokes the module as a function, checking a path against the defined patterns.
+---@param path string
+---@return boolean|nil
+function metatable:__call(path)
+    return self:finishMatch(self:getRelativePath(path))
 end
 
-return function (pattern, options, interface)
+--- Creates a new glob matcher object.
+---@param pattern string|table
+---@param options table
+---@param interface table
+---@return table
+return function(pattern, options, interface)
     local self = setmetatable({
-        pattern   = {},
-        options   = {},
-        matcher   = {},
-        errors    = {},
+        pattern = {},
+        options = {},
+        matcher = {},
+        errors = {},
         interface = {},
-    }, mt)
+    }, metatable)
 
-    if type(options) == 'table' then
+    if type(options) == "table" then
         for op, val in pairs(options) do
             self:setOption(op, val)
         end
     end
 
-    if type(pattern) == 'table' then
+    if type(pattern) == "table" then
         for _, pat in ipairs(pattern) do
             self:addPattern(pat)
         end
+        
     else
         self:addPattern(pattern)
     end
 
-    if type(interface) == 'table' then
+    if type(interface) == "table" then
         for key, func in pairs(interface) do
             self:setInterface(key, func)
         end

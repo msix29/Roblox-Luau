@@ -1,4 +1,5 @@
 local files      = require 'files'
+local knitUtils      = require 'knit-utils'
 local guide      = require 'core.guide'
 local vm         = require 'vm'
 local hoverLabel = require 'core.hover.label'
@@ -140,18 +141,18 @@ local function makeSignatures(call, pos, uri)
     if oop then
         -- see if this is a knit method
         -- add to defs with the definition from the original file
-    
+
         local srcFullText = files.getText(uri)
 
         local methodName, backwardPos = lookBackward.findWord(srcFullText, call.args.start - 1)
-        
+
         if not methodName then
             -- this works when the user hasnt typed any parameters yet
             methodName, backwardPos = lookBackward.findWord(srcFullText, pos - 1)
         else
             -- the user has already started typing the parameters (atleast one)
         end
-        
+
         local tableName, backwardPos = lookBackward.findWord(srcFullText, backwardPos - 2)
 
         if tableName and tableName == "Client" then
@@ -160,20 +161,7 @@ local function makeSignatures(call, pos, uri)
 
         if tableName and (tableName:find("Controller") or tableName:find("Service")) then
             -- log.tableInfo(source)
-            local knitModuleUri
-
-            for _, thisUri in ipairs(files.getAllUris()) do
-                if thisUri:find(tableName) then
-                    knitModuleUri = thisUri
-                    
-                    if thisUri:find("init%.lua") then
-                        -- if this was a init.lua file under a folder, this would be where the real methods are located
-                        -- so stop here and make sure nothing overwrites it
-                        log.info("SIGNATURE STOP FULL STOP")
-                        break
-                    end
-                end
-            end
+            local knitModuleUri = knitUtils.resolveKnitRequires(tableName, false)
 
             if knitModuleUri then
                 local uriAst = files.getAst(knitModuleUri)
@@ -182,7 +170,7 @@ local function makeSignatures(call, pos, uri)
                 guide.eachSourceType(uriAst.ast, "setmethod", function(src)
                     local textInRange = knitModuleText:sub(src.start, src.finish)
                     textInRange = textInRange:sub(textInRange:find(":") + 1, -1)
-                
+
                     if textInRange == methodName then
                         table.insert(defs, src)
                     end
@@ -192,11 +180,11 @@ local function makeSignatures(call, pos, uri)
     end
 
     local signs = {}
-    
+
     for _, def in ipairs(vm.getDefs(node, 0, {onlyDef = true, fullType = true})) do
         table.insert(defs, def)
     end
-    
+
     local mark = {}
 
     for _, src in ipairs(defs) do

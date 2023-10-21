@@ -1,6 +1,6 @@
 {
 	"name": "roblox-luau-language-server",
-	"description": "A Language Server for Luau.",
+	"description": "A Language server-client for Luau.",
 	"author": "Msix29",
 	"license": "MIT",
 	"version": "0.0.1",
